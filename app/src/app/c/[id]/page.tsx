@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { QRCodeSVG } from 'qrcode.react';
+// import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import TopBar from '../../../components/TopBar';
 import { usePrivyWallet } from '../../../hooks/usePrivyWallet';
-import { useCommitClub } from '../../../hooks/useCommitClub';
 import { useUIStore, useChainStore } from '../../../store/uiStore';
+import { useDemoStore } from '../../../store/demoStore';
 
 interface PageProps {
   params: Promise<{
@@ -15,10 +15,10 @@ interface PageProps {
 }
 
 export default function CommitmentPage({ params }: PageProps) {
-  const { connected, ready } = usePrivyWallet();
-  const { joinCommit, checkIn, settleCommit } = useCommitClub();
+  const { connected, ready, address } = usePrivyWallet();
   const { addToast } = useUIStore();
   const { selectedChain } = useChainStore();
+  const { getCommitment, joinCommitment, checkInToCommitment, settleCommitment } = useDemoStore();
   const [commitmentId, setCommitmentId] = useState<string>('');
   const [commitment, setCommitment] = useState<{
     id: string;
@@ -53,21 +53,36 @@ export default function CommitmentPage({ params }: PageProps) {
 
   const fetchCommitment = async () => {
     try {
-      // Mock data for example commitment
-      const mockCommitment = {
-        id: commitmentId,
-        name: 'Central Park Morning Run',
-        organizer: '0x1234567890123456789012345678901234567890',
-        stakeAmount: '0.1',
-        minCheckIns: 3,
-        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-        totalStaked: '0.3',
-        joiners: ['0x1234567890123456789012345678901234567890', '0x2345678901234567890123456789012345678901'],
-        attendees: ['0x1234567890123456789012345678901234567890'],
-        settled: false,
-      };
-
-      setCommitment(mockCommitment);
+      const demoCommitment = getCommitment(commitmentId);
+      if (demoCommitment) {
+        setCommitment({
+          id: demoCommitment.id,
+          name: demoCommitment.name,
+          organizer: demoCommitment.organizer,
+          stakeAmount: demoCommitment.stakeAmount,
+          minCheckIns: demoCommitment.minCheckIns,
+          deadline: demoCommitment.deadline,
+          totalStaked: demoCommitment.totalStaked,
+          joiners: demoCommitment.joiners,
+          attendees: demoCommitment.attendees,
+          settled: demoCommitment.settled,
+        });
+      } else {
+        // Fallback to mock data for demo
+        const mockCommitment = {
+          id: commitmentId,
+          name: 'Central Park Morning Run',
+          organizer: '0x1234567890123456789012345678901234567890',
+          stakeAmount: '0.1',
+          minCheckIns: 3,
+          deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+          totalStaked: '0.3',
+          joiners: ['0x1234567890123456789012345678901234567890', '0x2345678901234567890123456789012345678901'],
+          attendees: ['0x1234567890123456789012345678901234567890'],
+          settled: false,
+        };
+        setCommitment(mockCommitment);
+      }
     } catch (error) {
       console.error('Error fetching commitment:', error);
       addToast('Failed to fetch commitment data', 'error');
@@ -78,7 +93,7 @@ export default function CommitmentPage({ params }: PageProps) {
 
   // Action handlers
   const handleJoin = async () => {
-    if (!connected) {
+    if (!connected || !address) {
       addToast('Please connect your wallet first', 'error');
       return;
     }
@@ -87,11 +102,10 @@ export default function CommitmentPage({ params }: PageProps) {
     addToast('Joining commitment...', 'pending');
 
     try {
-      await joinCommit({
-        commitId: commitmentId,
-        stakeAmount: commitment!.stakeAmount,
-      });
-
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      joinCommitment(commitmentId, address);
       addToast('Successfully joined commitment!', 'success');
       await fetchCommitment(); // Refresh data
     } catch (error) {
@@ -108,18 +122,27 @@ export default function CommitmentPage({ params }: PageProps) {
       return;
     }
 
+    if (!connected || !address) {
+      addToast('Please connect your wallet first', 'error');
+      return;
+    }
+
     setCheckingIn(true);
     addToast('Checking in...', 'pending');
 
     try {
-      await checkIn({
-        commitId: commitmentId,
-        code: checkInCode,
-      });
-
-      addToast('Successfully checked in!', 'success');
-      setCheckInCode('');
-      await fetchCommitment(); // Refresh data
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const success = checkInToCommitment(commitmentId, address, checkInCode);
+      
+      if (success) {
+        addToast('Successfully checked in!', 'success');
+        setCheckInCode('');
+        await fetchCommitment(); // Refresh data
+      } else {
+        addToast('Invalid check-in code or not a participant', 'error');
+      }
     } catch (error) {
       console.error('Error checking in:', error);
       addToast('Failed to check in', 'error');
@@ -133,10 +156,10 @@ export default function CommitmentPage({ params }: PageProps) {
     addToast('Settling commitment...', 'pending');
 
     try {
-      await settleCommit({
-        commitId: commitmentId,
-      });
-
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      settleCommitment(commitmentId);
       addToast('Commitment settled successfully!', 'success');
 
       // Trigger confetti
@@ -274,14 +297,17 @@ export default function CommitmentPage({ params }: PageProps) {
               {showQR && (
                 <div className="mt-6 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
                   <p className="text-sm font-semibold text-blue-800 mb-4 text-center">Scan to join this commitment:</p>
-                  <div className="flex justify-center">
-                    <div className="bg-white p-4 rounded-xl shadow-lg">
-                      <QRCodeSVG 
-                        value={`${window.location.origin}/c/${commitmentId}`}
-                        size={200}
-                      />
-                    </div>
-                  </div>
+                                            <div className="flex justify-center">
+                            <div className="bg-white p-4 rounded-xl shadow-lg">
+                              <div className="w-[200px] h-[200px] bg-gray-100 rounded-lg flex items-center justify-center">
+                                <div className="text-center">
+                                  <div className="text-4xl mb-2">📱</div>
+                                  <div className="text-sm text-gray-600">QR Code</div>
+                                  <div className="text-xs text-gray-500 mt-1">Scan to join</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                 </div>
               )}
             </div>

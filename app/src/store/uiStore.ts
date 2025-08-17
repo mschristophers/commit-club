@@ -72,5 +72,12 @@ export const useChainStore = create<ChainState>((set) => ({
     name: FLOW_EVM_TESTNET.name,
     symbol: 'FLOW'
   },
-  setSelectedChain: (chain) => set({ selectedChain: chain }),
+  setSelectedChain: (chain) => {
+    // Determine symbol based on chain
+    let symbol = 'FLOW';
+    if (chain.id === 421614) symbol = 'USDC'; // Arbitrum Sepolia
+    if (chain.id === 84532) symbol = 'USDC';  // Base Sepolia
+    
+    set({ selectedChain: { ...chain, symbol } });
+  },
 }));

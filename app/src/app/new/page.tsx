@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import TopBar from '../../components/TopBar';
 import { usePrivyWallet } from '../../hooks/usePrivyWallet';
-import { useCommitClub } from '../../hooks/useCommitClub';
 import { useUIStore, useChainStore } from '../../store/uiStore';
+import { useDemoStore } from '../../store/demoStore';
 
 export default function NewCommitment() {
-  const { connected, ready, login } = usePrivyWallet();
-  const { createCommit } = useCommitClub();
+  const { connected, ready, login, address } = usePrivyWallet();
   const { addToast } = useUIStore();
   const { selectedChain } = useChainStore();
+  const { addCommitment } = useDemoStore();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -36,20 +36,19 @@ export default function NewCommitment() {
     addToast('Creating commitment...', 'pending');
 
     try {
-      const hash = await createCommit({
+      // Simulate transaction delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const commitmentId = addCommitment({
         name: formData.name,
+        organizer: address || '0x0000000000000000000000000000000000000000',
         stakeAmount: formData.stakeAmount,
         minCheckIns: parseInt(formData.minCheckIns),
         deadline: formData.deadline,
         code: formData.code,
       });
-      
+
       addToast('Commitment created successfully!', 'success');
-      
-      // For now, we'll use a simple approach - in a real app you'd parse events
-      const commitmentId = '1'; // This should be extracted from the transaction receipt
-      
-      // Navigate to the commitment page
       router.push(`/c/${commitmentId}`);
       
     } catch (error) {

@@ -14,8 +14,8 @@ export default function TopBar() {
 
   const chains = [
     { ...FLOW_EVM_TESTNET, label: 'Flow EVM', symbol: 'FLOW' },
-    { ...ARBITRUM_SEPOLIA, label: 'Arbitrum Sepolia', symbol: 'ETH' },
-    { ...BASE_SEPOLIA, label: 'Base Sepolia', symbol: 'ETH' }
+    { ...ARBITRUM_SEPOLIA, label: 'Arbitrum Sepolia', symbol: 'USDC' },
+    { ...BASE_SEPOLIA, label: 'Base Sepolia', symbol: 'USDC' }
   ];
 
   // Close chain selector when clicking outside

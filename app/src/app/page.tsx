@@ -13,7 +13,7 @@ export default function Home() {
               Welcome to Commit Club
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              N-of-M check-in pot for NYC meetups. Create commitments, stake FLOW, and earn rewards for showing up.
+              N-of-M check-in pot for NYC meetups. Create commitments, stake money, and earn rewards for showing up.
             </p>
           </div>
           
