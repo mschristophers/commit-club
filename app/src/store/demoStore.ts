@@ -31,7 +31,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
   commitments: [
     {
       id: '1',
-      name: 'Central Park Morning Run',
+      name: 'Central Park Morning Run Challenge',
       organizer: '0x1234567890123456789012345678901234567890',
       stakeAmount: '0.1',
       minCheckIns: 3,

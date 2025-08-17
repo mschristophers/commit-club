@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Commit Club 🗽",
-  description: "N-of-M check-in pot for NYC meetups",
+  description: "Turn your goals into reality with social stakes. Create challenges, put money on the line, and reward those who show up!",
 };
 
 export default function RootLayout({

@@ -107,17 +107,17 @@ export default function NewCommitment() {
         <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Create New Commitment
+              Create Your Challenge 🎯
             </h1>
             <p className="text-gray-600">
-              Set up a commitment that will bring people together
+              Create a challenge where showing up pays off and no-shows pay the price
             </p>
           </div>
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                Commitment Name
+                Challenge Name
               </label>
               <input
                 type="text"
@@ -151,7 +151,7 @@ export default function NewCommitment() {
             
             <div>
               <label htmlFor="minCheckIns" className="block text-sm font-medium text-gray-700 mb-2">
-                Minimum Check-ins Required
+                How Many Times to Show Up
               </label>
               <input
                 type="number"
@@ -183,7 +183,7 @@ export default function NewCommitment() {
             
             <div>
               <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
-                Secret Check-in Code
+                Secret Attendance Code
               </label>
               <input
                 type="text"
@@ -196,7 +196,7 @@ export default function NewCommitment() {
                 placeholder="e.g., morningrun2024"
               />
               <p className="mt-1 text-sm text-gray-500">
-                This code will be used by participants to check in
+                Share this code with participants to prove they actually showed up
               </p>
             </div>
             
@@ -212,7 +212,7 @@ export default function NewCommitment() {
                 disabled={isSubmitting}
                 className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
               >
-                {isSubmitting ? 'Creating...' : 'Create Commitment'}
+                {isSubmitting ? 'Creating...' : 'Launch Challenge'}
               </button>
             </div>
           </form>

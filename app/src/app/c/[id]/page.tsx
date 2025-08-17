@@ -106,7 +106,7 @@ export default function CommitmentPage({ params }: PageProps) {
       await new Promise(resolve => setTimeout(resolve, 2000));
       
       joinCommitment(commitmentId, address);
-      addToast('Successfully joined commitment!', 'success');
+      addToast('Successfully joined the challenge! Put your money where your mouth is!', 'success');
       await fetchCommitment(); // Refresh data
     } catch (error) {
       console.error('Error joining commitment:', error);
@@ -137,7 +137,7 @@ export default function CommitmentPage({ params }: PageProps) {
       const success = checkInToCommitment(commitmentId, address, checkInCode);
       
       if (success) {
-        addToast('Successfully checked in!', 'success');
+        addToast('Attendance confirmed! You\'re on track to win rewards!', 'success');
         setCheckInCode('');
         await fetchCommitment(); // Refresh data
       } else {
@@ -160,7 +160,7 @@ export default function CommitmentPage({ params }: PageProps) {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       settleCommitment(commitmentId);
-      addToast('Commitment settled successfully!', 'success');
+      addToast('Rewards distributed! Winners get paid, no-shows lose their stake!', 'success');
 
       // Trigger confetti
       confetti({
@@ -208,21 +208,21 @@ export default function CommitmentPage({ params }: PageProps) {
         <div className="bg-white shadow-xl rounded-2xl p-8 mb-8 border border-gray-100">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {commitment.name}
-              </h1>
-              <p className="text-gray-600">
-                Commitment #{commitmentId}
-              </p>
+                                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    {commitment.name}
+                  </h1>
+                  <p className="text-gray-600">
+                    Challenge #{commitmentId}
+                  </p>
             </div>
             <div className="text-right">
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-2 ${
-                commitment.settled 
-                  ? 'bg-gray-100 text-gray-800' 
-                  : 'bg-green-100 text-green-800'
-              }`}>
-                {commitment.settled ? 'Settled' : 'Active'}
-              </div>
+                                    <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-2 ${
+                        commitment.settled
+                          ? 'bg-gray-100 text-gray-800'
+                          : 'bg-green-100 text-green-800'
+                      }`}>
+                        {commitment.settled ? 'Rewards Distributed' : 'Active'}
+                      </div>
               <p className="text-sm text-gray-500">
                 Organized by {commitment.organizer.slice(0, 6)}...{commitment.organizer.slice(-4)}
               </p>
@@ -234,10 +234,10 @@ export default function CommitmentPage({ params }: PageProps) {
               <h3 className="text-sm font-semibold text-blue-700 mb-2">Stake Amount</h3>
                                 <p className="text-3xl font-bold text-blue-900">{commitment.stakeAmount} {selectedChain.symbol}</p>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
-              <h3 className="text-sm font-semibold text-green-700 mb-2">Min Check-ins</h3>
-              <p className="text-3xl font-bold text-green-900">{commitment.minCheckIns}</p>
-            </div>
+                                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+                      <h3 className="text-sm font-semibold text-green-700 mb-2">Required Show-ups</h3>
+                      <p className="text-3xl font-bold text-green-900">{commitment.minCheckIns}</p>
+                    </div>
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
               <h3 className="text-sm font-semibold text-purple-700 mb-2">Total Staked</h3>
               <p className="text-3xl font-bold text-purple-900">{commitment.totalStaked} FLOW</p>
@@ -253,31 +253,31 @@ export default function CommitmentPage({ params }: PageProps) {
                   {new Date(commitment.deadline).toLocaleString()}
                 </dd>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Participants</dt>
-                <dd className="text-sm text-gray-900">{commitment.joiners.length}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Check-ins</dt>
-                <dd className="text-sm text-gray-900">{commitment.attendees.length}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Status</dt>
-                <dd className="text-sm text-gray-900">
-                  {commitment.settled ? 'Settled' : 'Pending'}
-                </dd>
-              </div>
+                                    <div>
+                        <dt className="text-sm font-medium text-gray-500">Total Participants</dt>
+                        <dd className="text-sm text-gray-900">{commitment.joiners.length}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">Who Showed Up</dt>
+                        <dd className="text-sm text-gray-900">{commitment.attendees.length}</dd>
+                      </div>
+                                    <div>
+                        <dt className="text-sm font-medium text-gray-500">Status</dt>
+                        <dd className="text-sm text-gray-900">
+                          {commitment.settled ? 'Rewards Distributed' : 'Active'}
+                        </dd>
+                      </div>
             </dl>
           </div>
         </div>
         
         {connected && !commitment.settled && (
           <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Actions</h2>
+                          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Join the Challenge</h2>
             
             {/* Join Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Join Commitment</h3>
+                                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Join the Challenge</h3>
               <div className="flex flex-wrap gap-4">
                 <button 
                   onClick={handleJoin}
@@ -314,7 +314,7 @@ export default function CommitmentPage({ params }: PageProps) {
 
             {/* Check-in Section */}
             <div className="mb-8">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Check In</h3>
+                                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Prove You Showed Up</h3>
               <div className="flex gap-4">
                 <input
                   type="text"
@@ -328,23 +328,23 @@ export default function CommitmentPage({ params }: PageProps) {
                   disabled={checkingIn || !checkInCode.trim()}
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
-                  {checkingIn ? 'Checking In...' : 'Check In'}
+                                          {checkingIn ? 'Proving...' : 'Prove Attendance'}
                 </button>
               </div>
             </div>
 
             {/* Settle Section */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Settle Commitment</h3>
+                                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Distribute Rewards</h3>
               <button 
                 onClick={handleSettle}
                 disabled={settling}
                 className="inline-flex items-center px-6 py-3 border-2 border-gray-300 text-base font-semibold rounded-xl shadow-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
-                {settling ? 'Settling...' : 'Settle Commitment'}
+                                  {settling ? 'Distributing...' : 'Distribute Rewards'}
               </button>
               <p className="mt-3 text-sm text-gray-600 bg-gray-50 px-4 py-3 rounded-lg">
-                💡 Anyone can settle the commitment after the deadline has passed
+                💡 After the deadline, rewards are distributed to those who showed up, and no-shows lose their stake
               </p>
             </div>
           </div>
