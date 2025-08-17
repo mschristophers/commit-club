@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-// import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import TopBar from '../../../components/TopBar';
 import { usePrivyWallet } from '../../../hooks/usePrivyWallet';
@@ -297,17 +297,20 @@ export default function CommitmentPage({ params }: PageProps) {
               {showQR && (
                 <div className="mt-6 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
                   <p className="text-sm font-semibold text-blue-800 mb-4 text-center">Scan to join this commitment:</p>
-                                            <div className="flex justify-center">
-                            <div className="bg-white p-4 rounded-xl shadow-lg">
-                              <div className="w-[200px] h-[200px] bg-gray-100 rounded-lg flex items-center justify-center">
-                                <div className="text-center">
-                                  <div className="text-4xl mb-2">📱</div>
-                                  <div className="text-sm text-gray-600">QR Code</div>
-                                  <div className="text-xs text-gray-500 mt-1">Scan to join</div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                  <div className="flex justify-center">
+                    <div className="bg-white p-4 rounded-xl shadow-lg">
+                      <QRCodeSVG 
+                        value={`${window.location.origin}/c/${commitmentId}`}
+                        size={200}
+                        level="M"
+                        includeMargin={true}
+                        className="rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-blue-600 mt-3 text-center">
+                    Scan this QR code to join "{commitment.name}"
+                  </p>
                 </div>
               )}
             </div>
