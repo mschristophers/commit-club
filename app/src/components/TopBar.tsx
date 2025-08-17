@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { FLOW_EVM_TESTNET, ARBITRUM_SEPOLIA, BASE_SEPOLIA } from '../lib/chain';
 import { useChainStore } from '../store/uiStore';
@@ -56,12 +57,12 @@ export default function TopBar() {
     <header className="border-b border-gray-200 bg-white shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900 flex items-center">
-              <span className="mr-2">🗽</span>
-              Commit Club
-            </h1>
-          </div>
+                            <div className="flex items-center">
+                    <Link href="/" className="text-xl font-bold text-gray-900 flex items-center hover:text-blue-600 transition-colors cursor-pointer">
+                      <span className="mr-2">🗽</span>
+                      Commit Club
+                    </Link>
+                  </div>
           
           <div className="flex items-center space-x-3">
             {/* Network Badge with Chain Selector */}
