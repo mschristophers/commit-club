@@ -1,0 +1,356 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { encodeFunctionData } from 'viem';
+import { QRCodeSVG } from 'qrcode.react';
+import confetti from 'canvas-confetti';
+import TopBar from '../../../components/TopBar';
+import { useToast } from '../../../components/ToastContext';
+import { COMMIT_CLUB_ABI, COMMIT_CLUB_ADDRESS, publicClient, weiToFlow } from '../../../utils/contract';
+
+interface PageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export default function CommitmentPage({ params }: PageProps) {
+  const { authenticated, ready, sendTransaction } = usePrivy();
+  const { wallets } = useWallets();
+  const { showToast } = useToast();
+  const [commitmentId, setCommitmentId] = useState<string>('');
+  const [commitment, setCommitment] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [joining, setJoining] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(false);
+  const [settling, setSettling] = useState(false);
+  const [checkInCode, setCheckInCode] = useState('');
+  const [showQR, setShowQR] = useState(false);
+
+  // Handle async params
+  useEffect(() => {
+    params.then(({ id }) => setCommitmentId(id));
+  }, [params]);
+
+  // Fetch commitment data
+  useEffect(() => {
+    if (commitmentId) {
+      fetchCommitment();
+    }
+  }, [commitmentId]);
+
+  const fetchCommitment = async () => {
+    try {
+      const data = await publicClient.readContract({
+        address: COMMIT_CLUB_ADDRESS,
+        abi: COMMIT_CLUB_ABI,
+        functionName: 'getCommit',
+        args: [BigInt(commitmentId)],
+      });
+
+      setCommitment({
+        id: commitmentId,
+        name: data[0],
+        organizer: data[1],
+        stakeAmount: weiToFlow(data[2]),
+        minCheckIns: Number(data[3]),
+        deadline: new Date(Number(data[4]) * 1000).toISOString(),
+        totalStaked: weiToFlow(data[5]),
+        joiners: data[6],
+        attendees: data[7],
+        settled: data[8],
+      });
+    } catch (error) {
+      console.error('Error fetching commitment:', error);
+      showToast('Failed to fetch commitment data', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Action handlers
+  const handleJoin = async () => {
+    if (!wallets[0]) {
+      showToast('No wallet connected', 'error');
+      return;
+    }
+
+    setJoining(true);
+    showToast('Joining commitment...', 'pending');
+
+    try {
+      const { hash } = await sendTransaction({
+        to: COMMIT_CLUB_ADDRESS,
+        value: BigInt(commitment.stakeAmount) * BigInt(10 ** 18), // Convert FLOW to wei
+        data: encodeFunctionData({
+          abi: COMMIT_CLUB_ABI,
+          functionName: 'joinCommit',
+          args: [BigInt(commitmentId)],
+        }),
+      });
+
+      showToast('Successfully joined commitment!', 'success');
+      await fetchCommitment(); // Refresh data
+    } catch (error) {
+      console.error('Error joining commitment:', error);
+      showToast('Failed to join commitment', 'error');
+    } finally {
+      setJoining(false);
+    }
+  };
+
+  const handleCheckIn = async () => {
+    if (!checkInCode.trim()) {
+      showToast('Please enter the check-in code', 'error');
+      return;
+    }
+
+    setCheckingIn(true);
+    showToast('Checking in...', 'pending');
+
+    try {
+      const { hash } = await sendTransaction({
+        to: COMMIT_CLUB_ADDRESS,
+        data: encodeFunctionData({
+          abi: COMMIT_CLUB_ABI,
+          functionName: 'checkIn',
+          args: [BigInt(commitmentId), checkInCode],
+        }),
+      });
+
+      showToast('Successfully checked in!', 'success');
+      setCheckInCode('');
+      await fetchCommitment(); // Refresh data
+    } catch (error) {
+      console.error('Error checking in:', error);
+      showToast('Failed to check in', 'error');
+    } finally {
+      setCheckingIn(false);
+    }
+  };
+
+  const handleSettle = async () => {
+    setSettling(true);
+    showToast('Settling commitment...', 'pending');
+
+    try {
+      const { hash } = await sendTransaction({
+        to: COMMIT_CLUB_ADDRESS,
+        data: encodeFunctionData({
+          abi: COMMIT_CLUB_ABI,
+          functionName: 'settleCommit',
+          args: [BigInt(commitmentId)],
+        }),
+      });
+
+      showToast('Commitment settled successfully!', 'success');
+      
+      // Trigger confetti
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+
+      await fetchCommitment(); // Refresh data
+    } catch (error) {
+      console.error('Error settling commitment:', error);
+      showToast('Failed to settle commitment', 'error');
+    } finally {
+      setSettling(false);
+    }
+  };
+
+  if (!ready || !commitmentId || loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <TopBar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-gray-500">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!commitment) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <TopBar />
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-gray-500">Commitment not found</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <TopBar />
+      
+      <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow rounded-lg p-6 mb-6">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {commitment.name}
+              </h1>
+              <p className="text-gray-600">
+                Commitment #{commitmentId}
+              </p>
+            </div>
+            <div className="text-right">
+              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium mb-2 ${
+                commitment.settled 
+                  ? 'bg-gray-100 text-gray-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {commitment.settled ? 'Settled' : 'Active'}
+              </div>
+              <p className="text-sm text-gray-500">
+                Organized by {commitment.organizer.slice(0, 6)}...{commitment.organizer.slice(-4)}
+              </p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Stake Amount</h3>
+              <p className="text-2xl font-bold text-gray-900">{commitment.stakeAmount} FLOW</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Min Check-ins</h3>
+              <p className="text-2xl font-bold text-gray-900">{commitment.minCheckIns}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="text-sm font-medium text-gray-500 mb-1">Total Staked</h3>
+              <p className="text-2xl font-bold text-gray-900">{commitment.totalStaked} FLOW</p>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-200 pt-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Details</h3>
+            <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Deadline</dt>
+                <dd className="text-sm text-gray-900">
+                  {new Date(commitment.deadline).toLocaleString()}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Participants</dt>
+                <dd className="text-sm text-gray-900">{commitment.joiners.length}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Check-ins</dt>
+                <dd className="text-sm text-gray-900">{commitment.attendees.length}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-gray-500">Status</dt>
+                <dd className="text-sm text-gray-900">
+                  {commitment.settled ? 'Settled' : 'Pending'}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+        
+        {authenticated && !commitment.settled && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
+            
+            {/* Join Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Join Commitment</h3>
+              <div className="flex flex-wrap gap-4">
+                <button 
+                  onClick={handleJoin}
+                  disabled={joining}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {joining ? 'Joining...' : `Join (${commitment.stakeAmount} FLOW)`}
+                </button>
+                <button 
+                  onClick={() => setShowQR(!showQR)}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  {showQR ? 'Hide QR' : 'Show QR'}
+                </button>
+              </div>
+              
+              {showQR && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600 mb-2">Scan to join this commitment:</p>
+                  <div className="flex justify-center">
+                    <QRCodeSVG 
+                      value={`${window.location.origin}/c/${commitmentId}`}
+                      size={200}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Check-in Section */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Check In</h3>
+              <div className="flex gap-4">
+                <input
+                  type="text"
+                  value={checkInCode}
+                  onChange={(e) => setCheckInCode(e.target.value)}
+                  placeholder="Enter secret code"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                />
+                <button 
+                  onClick={handleCheckIn}
+                  disabled={checkingIn || !checkInCode.trim()}
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {checkingIn ? 'Checking In...' : 'Check In'}
+                </button>
+              </div>
+            </div>
+
+            {/* Settle Section */}
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Settle Commitment</h3>
+              <button 
+                onClick={handleSettle}
+                disabled={settling}
+                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {settling ? 'Settling...' : 'Settle Commitment'}
+              </button>
+              <p className="mt-2 text-sm text-gray-500">
+                Anyone can settle the commitment after the deadline has passed
+              </p>
+            </div>
+          </div>
+        )}
+        
+        {!authenticated && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-blue-800">
+                  Login Required
+                </h3>
+                <div className="mt-2 text-sm text-blue-700">
+                  <p>
+                    You need to login to join this commitment or perform other actions.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
