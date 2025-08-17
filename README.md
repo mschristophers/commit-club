@@ -42,7 +42,7 @@ Edit `.env.local` with your actual values:
 - `NEXT_PUBLIC_PRIVY_APP_ID` - Get from [Privy Console](https://console.privy.io/)
 - `PRIVATE_KEY` - Your wallet private key for contract deployment (without 0x prefix)
 - `FLOW_EVM_TESTNET_RPC` - Flow EVM Testnet RPC URL (already set)
-- `NEXT_PUBLIC_COMMIT_CLUB_ADDRESS` - Will be set after contract deployment
+- `NEXT_PUBLIC_COMMIT_CLUB_ADDRESS` - Deployed contract address: `0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB`
 
 **Note**: Both the contracts and app projects read from this centralized `.env.local` file.
 

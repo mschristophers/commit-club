@@ -3,8 +3,8 @@ import { configVariable } from "hardhat/config";
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
 import * as dotenv from "dotenv";
 
-// Load environment variables
-dotenv.config();
+// Load environment variables from root .env.local
+dotenv.config({ path: "../.env.local" });
 
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxViemPlugin],
