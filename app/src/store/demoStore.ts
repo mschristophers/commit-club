@@ -36,7 +36,7 @@ export const useDemoStore = create<DemoState>((set, get) => ({
       stakeAmount: '0.1',
       minCheckIns: 3,
       deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      totalStaked: '0.3',
+      totalStaked: '0.2', // 2 participants × 0.1 stake each
       joiners: ['0x1234567890123456789012345678901234567890', '0x2345678901234567890123456789012345678901'],
       attendees: ['0x1234567890123456789012345678901234567890'],
       settled: false,

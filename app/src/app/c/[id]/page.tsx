@@ -240,7 +240,7 @@ export default function CommitmentPage({ params }: PageProps) {
                     </div>
             <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
               <h3 className="text-sm font-semibold text-purple-700 mb-2">Total Staked</h3>
-              <p className="text-3xl font-bold text-purple-900">{commitment.totalStaked} FLOW</p>
+              <p className="text-3xl font-bold text-purple-900">{commitment.totalStaked} {selectedChain.symbol}</p>
             </div>
           </div>
           
