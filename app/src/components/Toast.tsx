@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 export type ToastType = 'success' | 'error' | 'pending' | 'info';
 
@@ -67,13 +67,13 @@ export default function Toast({ message, type, isVisible, onClose }: ToastProps)
   };
 
   return (
-    <div className={`fixed top-4 right-4 z-50 max-w-sm w-full bg-white border rounded-lg shadow-lg ${getStyles()}`}>
-      <div className="flex items-center p-4">
+    <div className={`fixed top-4 right-4 z-50 max-w-sm w-full bg-white border-2 rounded-xl shadow-2xl ${getStyles()}`}>
+      <div className="flex items-center p-5">
         <div className="flex-shrink-0">
           {getIcon()}
         </div>
         <div className="ml-3 flex-1">
-          <p className="text-sm font-medium">{message}</p>
+          <p className="text-sm font-semibold">{message}</p>
         </div>
         <div className="ml-4 flex-shrink-0">
           <button

@@ -20,7 +20,18 @@ export default function CommitmentPage({ params }: PageProps) {
   const { wallets } = useWallets();
   const { showToast } = useToast();
   const [commitmentId, setCommitmentId] = useState<string>('');
-  const [commitment, setCommitment] = useState<any>(null);
+  const [commitment, setCommitment] = useState<{
+    id: string;
+    name: string;
+    organizer: string;
+    stakeAmount: string;
+    minCheckIns: number;
+    deadline: string;
+    totalStaked: string;
+    joiners: readonly string[];
+    attendees: readonly string[];
+    settled: boolean;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [joining, setJoining] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
@@ -82,7 +93,7 @@ export default function CommitmentPage({ params }: PageProps) {
     try {
       const { hash } = await sendTransaction({
         to: COMMIT_CLUB_ADDRESS,
-        value: BigInt(commitment.stakeAmount) * BigInt(10 ** 18), // Convert FLOW to wei
+        value: BigInt(commitment!.stakeAmount) * BigInt(10 ** 18), // Convert FLOW to wei
         data: encodeFunctionData({
           abi: COMMIT_CLUB_ABI,
           functionName: 'joinCommit',
@@ -185,11 +196,11 @@ export default function CommitmentPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <TopBar />
       
-      <main className="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <main className="max-w-4xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow-xl rounded-2xl p-8 mb-8 border border-gray-100">
           <div className="flex justify-between items-start mb-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -213,18 +224,18 @@ export default function CommitmentPage({ params }: PageProps) {
             </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Stake Amount</h3>
-              <p className="text-2xl font-bold text-gray-900">{commitment.stakeAmount} FLOW</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <h3 className="text-sm font-semibold text-blue-700 mb-2">Stake Amount</h3>
+              <p className="text-3xl font-bold text-blue-900">{commitment.stakeAmount} FLOW</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Min Check-ins</h3>
-              <p className="text-2xl font-bold text-gray-900">{commitment.minCheckIns}</p>
+            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <h3 className="text-sm font-semibold text-green-700 mb-2">Min Check-ins</h3>
+              <p className="text-3xl font-bold text-green-900">{commitment.minCheckIns}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-1">Total Staked</h3>
-              <p className="text-2xl font-bold text-gray-900">{commitment.totalStaked} FLOW</p>
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border border-purple-200">
+              <h3 className="text-sm font-semibold text-purple-700 mb-2">Total Staked</h3>
+              <p className="text-3xl font-bold text-purple-900">{commitment.totalStaked} FLOW</p>
             </div>
           </div>
           
@@ -256,56 +267,58 @@ export default function CommitmentPage({ params }: PageProps) {
         </div>
         
         {authenticated && !commitment.settled && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Actions</h2>
+          <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Actions</h2>
             
             {/* Join Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Join Commitment</h3>
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Join Commitment</h3>
               <div className="flex flex-wrap gap-4">
                 <button 
                   onClick={handleJoin}
                   disabled={joining}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
                   {joining ? 'Joining...' : `Join (${commitment.stakeAmount} FLOW)`}
                 </button>
                 <button 
                   onClick={() => setShowQR(!showQR)}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-6 py-3 border-2 border-gray-300 text-base font-semibold rounded-xl shadow-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
                 >
                   {showQR ? 'Hide QR' : 'Show QR'}
                 </button>
               </div>
               
               {showQR && (
-                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600 mb-2">Scan to join this commitment:</p>
+                <div className="mt-6 p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                  <p className="text-sm font-semibold text-blue-800 mb-4 text-center">Scan to join this commitment:</p>
                   <div className="flex justify-center">
-                    <QRCodeSVG 
-                      value={`${window.location.origin}/c/${commitmentId}`}
-                      size={200}
-                    />
+                    <div className="bg-white p-4 rounded-xl shadow-lg">
+                      <QRCodeSVG 
+                        value={`${window.location.origin}/c/${commitmentId}`}
+                        size={200}
+                      />
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Check-in Section */}
-            <div className="mb-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Check In</h3>
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Check In</h3>
               <div className="flex gap-4">
                 <input
                   type="text"
                   value={checkInCode}
                   onChange={(e) => setCheckInCode(e.target.value)}
                   placeholder="Enter secret code"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base text-gray-900 placeholder-gray-500"
                 />
                 <button 
                   onClick={handleCheckIn}
                   disabled={checkingIn || !checkInCode.trim()}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
                   {checkingIn ? 'Checking In...' : 'Check In'}
                 </button>
@@ -314,16 +327,16 @@ export default function CommitmentPage({ params }: PageProps) {
 
             {/* Settle Section */}
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Settle Commitment</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Settle Commitment</h3>
               <button 
                 onClick={handleSettle}
                 disabled={settling}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center px-6 py-3 border-2 border-gray-300 text-base font-semibold rounded-xl shadow-lg text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               >
                 {settling ? 'Settling...' : 'Settle Commitment'}
               </button>
-              <p className="mt-2 text-sm text-gray-500">
-                Anyone can settle the commitment after the deadline has passed
+              <p className="mt-3 text-sm text-gray-600 bg-gray-50 px-4 py-3 rounded-lg">
+                💡 Anyone can settle the commitment after the deadline has passed
               </p>
             </div>
           </div>
