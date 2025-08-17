@@ -80,7 +80,18 @@ npx hardhat test nodejs   # Run TypeScript tests only
 
 **Expected output:** 9 passing tests (3 Solidity + 6 TypeScript)
 
-### 4. Deploy to Flow EVM Testnet
+### 4. Test Contract on Flow EVM Testnet
+
+```bash
+# Test contract interactions and generate events
+cd contracts
+npx hardhat run scripts/create-more-events.ts --network flowTestnet
+npx hardhat run scripts/test-join-checkin.ts --network flowTestnet
+```
+
+**View events on Flowscan:** [Contract Activity](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
+
+### 5. Deploy to Flow EVM Testnet
 
 ```bash
 # 1. Get FLOW from faucet: https://thirdweb.com/testnet
