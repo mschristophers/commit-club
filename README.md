@@ -1,22 +1,33 @@
-# Commit Club
+# Commit Club 🗽
 
-A tiny "N-of-M check-in pot" for NYC meetups (e.g., Central Park runs) built with Next.js, Privy, and Hardhat 3.
+Turn your goals into reality with social stakes! Create challenges, put money on the line, and reward those who show up while penalizing those who don't.
+
+Perfect for fitness groups, study sessions, or any commitment where showing up matters.
+
+## What This Does
+
+Commit Club helps people stick to their commitments by putting money on the line. Here's how it works:
+
+1. **Create a Challenge** - Set up a goal with a stake amount and how many times you need to show up
+2. **Put Money on the Line** - You and friends stake money to make the challenge real and motivating  
+3. **Show Up & Check In** - Use a secret code to prove you actually attended
+4. **Win or Lose Together** - Those who show up split the pot! Those who don't lose their stake
 
 ## Project Structure
 
 ```
 commit-club/
-├── contracts/          # Hardhat 3 project with Solidity contracts
-├── app/               # Next.js 14+ frontend with Privy auth
+├── contracts/          # Smart contracts that handle the money and rules
+├── app/               # Web app that people use to create and join challenges
 └── README.md          # This file
 ```
 
 ## Quick Setup
 
-### Prerequisites
+### What You Need
 
-- Node.js v22 or later
-- npm or pnpm
+- Node.js v22 or later (download from [nodejs.org](https://nodejs.org/))
+- npm (comes with Node.js) or pnpm
 
 ### 1. Install Dependencies
 
@@ -30,111 +41,117 @@ cd ../app
 npm install
 ```
 
-### 2. Environment Setup
+### 2. Set Up Your Keys
 
-Copy the example environment file and configure your settings:
+Copy the example settings file and add your own keys:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Edit `.env.local` with your actual values:
-- `NEXT_PUBLIC_PRIVY_APP_ID` - Get from [Privy Console](https://console.privy.io/)
-- `PRIVATE_KEY` - Your wallet private key for contract deployment (without 0x prefix)
-- `FLOW_EVM_TESTNET_RPC` - Flow EVM Testnet RPC URL (already set)
-- `NEXT_PUBLIC_COMMIT_CLUB_ADDRESS` - Deployed contract address: `0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB`
+Edit `.env.local` with your own values:
+- `NEXT_PUBLIC_PRIVY_APP_ID` - Get this from [Privy Console](https://console.privy.io/) (free account)
+- `PRIVATE_KEY` - Your wallet's private key for deploying contracts (without 0x prefix)
+- `FLOW_EVM_TESTNET_RPC` - Already set to the right URL
+- `NEXT_PUBLIC_COMMIT_CLUB_ADDRESS` - The deployed contract address: `0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB`
 
-**Note**: Both the contracts and app projects read from this centralized `.env.local` file.
+**Note**: Both the smart contracts and web app use the same settings file.
 
-### 3. Development
+### 3. Start Building
+
+Open two terminal windows and run:
 
 ```bash
-# Terminal 1: Run contracts tests
+# Terminal 1: Test the smart contracts
 cd contracts
 npm test
 
-# Terminal 2: Run Next.js app
+# Terminal 2: Start the web app
 cd app
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the app.
+Visit `http://localhost:3000` to see the app in action!
 
 ### Testing
 
-The CommitClub contract includes comprehensive tests covering:
+The smart contracts include tests to make sure everything works correctly:
 
-- ✅ **Commitment creation** and validation
-- ✅ **Join functionality** with exact stake amounts
-- ✅ **Input validation** (wrong amounts, duplicate joins)
-- ✅ **Check-in validation** (wrong codes, unauthorized access)
-- ✅ **Settlement timing** (before deadline rejection)
+- ✅ **Creating challenges** and checking the rules
+- ✅ **Joining challenges** with the right amount of money
+- ✅ **Checking for errors** (wrong amounts, joining twice)
+- ✅ **Checking in** with the right secret code
+- ✅ **Timing rules** (can't settle before the deadline)
 
-**Run tests:**
+**Run the tests:**
 ```bash
 cd contracts
-npx hardhat test          # Run all tests (Solidity + TypeScript)
-npx hardhat test solidity # Run Solidity tests only
-npx hardhat test nodejs   # Run TypeScript tests only
+npx hardhat test          # Run all tests
+npx hardhat test solidity # Run only the basic tests
+npx hardhat test nodejs   # Run only the advanced tests
 ```
 
-**Expected output:** 9 passing tests (3 Solidity + 6 TypeScript)
+**Expected result:** 9 tests should pass
 
-### 4. Test Contract on Flow EVM Testnet
+### 4. Test on the Blockchain
+
+Try out the smart contracts on the test network:
 
 ```bash
-# Test contract interactions and generate events
+# Test creating challenges and joining them
 cd contracts
 npx hardhat run scripts/create-more-events.ts --network flowTestnet
 npx hardhat run scripts/test-join-checkin.ts --network flowTestnet
 ```
 
-**View events on Flowscan:** [Contract Activity](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
+**See the activity:** [View on Flowscan](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
 
-### 5. Deploy to Flow EVM Testnet
+### 5. Deploy Your Own Version
+
+To put your own version on the test network:
 
 ```bash
-# 1. Get FLOW from faucet: https://thirdweb.com/testnet
-# 2. Set PRIVATE_KEY in .env.local (without 0x prefix)
-# 3. Deploy CommitClub contract:
+# 1. Get test money: https://thirdweb.com/testnet
+# 2. Add your private key to .env.local (without 0x prefix)
+# 3. Deploy the smart contracts:
 cd contracts
 npx hardhat compile
 npx hardhat run scripts/deploy.ts --network flowTestnet
 ```
 
-**Deployed Contract:**
+**Already Deployed:**
 - **Address**: `0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB`
-- **Explorer**: [View on FlowScan](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
+- **View it**: [On FlowScan](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
 
-Note: Contract verification is not yet supported on Flow EVM Testnet explorer.
+Note: The test network explorer doesn't support showing the contract code yet.
 
-## Scripts
+## Useful Commands
 
-### Contracts
+### Smart Contracts
 - `npm test` - Run all tests
-- `npm run test:solidity` - Run Solidity tests only
-- `npm run test:nodejs` - Run TypeScript tests only
-- `npm run build` - Compile contracts
-- `npm run deploy` - Deploy to Flow EVM Testnet
+- `npm run test:solidity` - Run basic tests only
+- `npm run test:nodejs` - Run advanced tests only
+- `npm run build` - Build the contracts
+- `npm run deploy` - Deploy to test network
 
-### App
-- `npm run dev` - Start development server
+### Web App
+- `npm run dev` - Start the development server
 - `npm run build` - Build for production
-- `npm run start` - Start production server
+- `npm run start` - Start the production server
 
-## Tech Stack
+## What We Built This With
 
-- **Frontend**: Next.js 14+ (App Router, TypeScript)
-- **Auth**: Privy React SDK (embedded wallet, email/phone login)
-- **Smart Contracts**: Hardhat 3 + Solidity
-- **Blockchain**: Flow EVM Testnet
-- **Styling**: Tailwind CSS
-- **State**: Zustand
-- **Web3**: Viem + Wagmi
+- **Web App**: Next.js 14+ (modern React framework)
+- **User Login**: Privy (easy email/phone login with built-in wallets)
+- **Smart Contracts**: Hardhat 3 + Solidity (for handling money and rules)
+- **Blockchain**: Flow EVM Testnet (fast and cheap for testing)
+- **Styling**: Tailwind CSS (quick and beautiful design)
+- **Data Management**: Zustand (simple state management)
+- **Blockchain Tools**: Viem + Wagmi (modern web3 libraries)
 
-## Documentation
+## Learn More
 
-- [Hardhat 3 Getting Started](https://hardhat.org/docs/getting-started)
-- [Privy React Setup](https://docs.privy.io/basics/react/setup)
-- [Flow EVM Using](https://developers.flow.com/evm/using)
-- [Flow EVM Faucet](https://developers.flow.com/evm/faucet)
+- [Hardhat 3 Getting Started](https://hardhat.org/docs/getting-started) - How to build smart contracts
+- [Privy React Setup](https://docs.privy.io/basics/react/setup) - How to add easy user login
+- [Flow EVM Using](https://developers.flow.com/evm/using) - How to use the Flow blockchain
+- [Flow EVM Faucet](https://developers.flow.com/evm/faucet) - Get free test money
