@@ -65,7 +65,7 @@ Visit `http://localhost:3000` to see the app.
 ```bash
 # 1. Get FLOW from faucet: https://thirdweb.com/testnet
 # 2. Set PRIVATE_KEY in contracts/.env
-# 3. Deploy:
+# 3. Deploy CommitClub contract:
 cd contracts
 npx hardhat compile
 npx hardhat run scripts/deploy.ts --network flowTestnet
