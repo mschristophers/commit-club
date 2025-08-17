@@ -84,12 +84,18 @@ npx hardhat test nodejs   # Run TypeScript tests only
 
 ```bash
 # 1. Get FLOW from faucet: https://thirdweb.com/testnet
-# 2. Set PRIVATE_KEY in contracts/.env
+# 2. Set PRIVATE_KEY in .env.local (without 0x prefix)
 # 3. Deploy CommitClub contract:
 cd contracts
 npx hardhat compile
 npx hardhat run scripts/deploy.ts --network flowTestnet
 ```
+
+**Deployed Contract:**
+- **Address**: `0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB`
+- **Explorer**: [View on FlowScan](https://evm-testnet.flowscan.io/address/0xE7658266c49E975ABcC6ce6f5f60629f61dca4CB)
+
+Note: Contract verification is not yet supported on Flow EVM Testnet explorer.
 
 ## Scripts
 
