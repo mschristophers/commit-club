@@ -60,6 +60,26 @@ npm run dev
 
 Visit `http://localhost:3000` to see the app.
 
+### Testing
+
+The CommitClub contract includes comprehensive tests covering:
+
+- ✅ **Commitment creation** and validation
+- ✅ **Join functionality** with exact stake amounts
+- ✅ **Input validation** (wrong amounts, duplicate joins)
+- ✅ **Check-in validation** (wrong codes, unauthorized access)
+- ✅ **Settlement timing** (before deadline rejection)
+
+**Run tests:**
+```bash
+cd contracts
+npx hardhat test          # Run all tests (Solidity + TypeScript)
+npx hardhat test solidity # Run Solidity tests only
+npx hardhat test nodejs   # Run TypeScript tests only
+```
+
+**Expected output:** 9 passing tests (3 Solidity + 6 TypeScript)
+
 ### 4. Deploy to Flow EVM Testnet
 
 ```bash
