@@ -1,7 +1,7 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
-import { FLOW_EVM_TESTNET, ENV } from '../lib/chain';
+import { FLOW_EVM_TESTNET, ARBITRUM_SEPOLIA, BASE_SEPOLIA, ENV } from '../lib/chain';
 
 interface PrivyProviderWrapperProps {
   children: React.ReactNode;
@@ -37,7 +37,7 @@ export default function PrivyProviderWrapper({ children }: PrivyProviderWrapperP
             decimals: 18
           }
         },
-        // Supported chains - only Flow EVM Testnet for now
+        // Supported chains - multiple testnets for funding options
         supportedChains: [
           {
             id: FLOW_EVM_TESTNET.id,
@@ -56,6 +56,46 @@ export default function PrivyProviderWrapper({ children }: PrivyProviderWrapperP
             nativeCurrency: {
               name: 'FLOW',
               symbol: 'FLOW',
+              decimals: 18
+            }
+          },
+          {
+            id: ARBITRUM_SEPOLIA.id,
+            name: ARBITRUM_SEPOLIA.name,
+            rpcUrls: {
+              default: {
+                http: [ARBITRUM_SEPOLIA.rpcUrl]
+              }
+            },
+            blockExplorers: {
+              default: {
+                name: 'Arbiscan',
+                url: ARBITRUM_SEPOLIA.explorer
+              }
+            },
+            nativeCurrency: {
+              name: 'Ether',
+              symbol: 'ETH',
+              decimals: 18
+            }
+          },
+          {
+            id: BASE_SEPOLIA.id,
+            name: BASE_SEPOLIA.name,
+            rpcUrls: {
+              default: {
+                http: [BASE_SEPOLIA.rpcUrl]
+              }
+            },
+            blockExplorers: {
+              default: {
+                name: 'Basescan',
+                url: BASE_SEPOLIA.explorer
+              }
+            },
+            nativeCurrency: {
+              name: 'Ether',
+              symbol: 'ETH',
               decimals: 18
             }
           }

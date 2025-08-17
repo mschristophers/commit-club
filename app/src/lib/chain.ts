@@ -1,9 +1,23 @@
-// Flow EVM Testnet configuration
+// Chain configurations
 export const FLOW_EVM_TESTNET = {
   id: 545,
   name: "Flow EVM Testnet",
   rpcUrl: "https://testnet.evm.nodes.onflow.org",
   explorer: "https://evm-testnet.flowscan.io"
+} as const;
+
+export const ARBITRUM_SEPOLIA = {
+  id: 421614,
+  name: "Arbitrum Sepolia",
+  rpcUrl: "https://sepolia-rollup.arbitrum.io/rpc",
+  explorer: "https://sepolia.arbiscan.io"
+} as const;
+
+export const BASE_SEPOLIA = {
+  id: 84532,
+  name: "Base Sepolia",
+  rpcUrl: "https://sepolia.base.org",
+  explorer: "https://sepolia.basescan.org"
 } as const;
 
 // Environment variables

@@ -3,16 +3,15 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { encodeFunctionData } from 'viem';
 import TopBar from '../../components/TopBar';
-import { useToast } from '../../components/ToastContext';
-import { COMMIT_CLUB_ABI, COMMIT_CLUB_ADDRESS, hashCode, dateToTimestamp, flowToWei } from '../../utils/contract';
+import { usePrivyWallet } from '../../hooks/usePrivyWallet';
+import { useCommitClub } from '../../hooks/useCommitClub';
+import { useUIStore } from '../../store/uiStore';
 
 export default function NewCommitment() {
-  const { authenticated, ready, sendTransaction } = usePrivy();
-  const { wallets } = useWallets();
-  const { showToast } = useToast();
+  const { connected, ready, login } = usePrivyWallet();
+  const { createCommit } = useCommitClub();
+  const { addToast } = useUIStore();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -27,40 +26,24 @@ export default function NewCommitment() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!wallets[0]) {
-      showToast('No wallet connected', 'error');
+    if (!connected) {
+      addToast('Please connect your wallet first', 'error');
       return;
     }
 
     setIsSubmitting(true);
-    showToast('Creating commitment...', 'pending');
+    addToast('Creating commitment...', 'pending');
 
     try {
-      // Hash the secret code
-      const codeHash = hashCode(formData.code);
-      
-      // Convert values
-      const stakeAmountWei = flowToWei(formData.stakeAmount);
-      const deadlineTimestamp = dateToTimestamp(formData.deadline);
-      const minCheckIns = BigInt(formData.minCheckIns);
-
-      // Create the transaction using Privy's sendTransaction
-      const { hash } = await sendTransaction({
-        to: COMMIT_CLUB_ADDRESS,
-        data: encodeFunctionData({
-          abi: COMMIT_CLUB_ABI,
-          functionName: 'createCommit',
-          args: [
-            formData.name,
-            stakeAmountWei,
-            minCheckIns,
-            deadlineTimestamp,
-            codeHash
-          ],
-        }),
+      const hash = await createCommit({
+        name: formData.name,
+        stakeAmount: formData.stakeAmount,
+        minCheckIns: parseInt(formData.minCheckIns),
+        deadline: formData.deadline,
+        code: formData.code,
       });
       
-      showToast('Commitment created successfully!', 'success');
+      addToast('Commitment created successfully!', 'success');
       
       // For now, we'll use a simple approach - in a real app you'd parse events
       const commitmentId = '1'; // This should be extracted from the transaction receipt
@@ -70,7 +53,7 @@ export default function NewCommitment() {
       
     } catch (error) {
       console.error('Error creating commitment:', error);
-      showToast('Failed to create commitment', 'error');
+      addToast('Failed to create commitment', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -92,18 +75,24 @@ export default function NewCommitment() {
     );
   }
 
-  if (!authenticated) {
+  if (!connected) {
     return (
       <div className="min-h-screen bg-gray-50">
         <TopBar />
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              Please login to create a commitment
+              Please connect your wallet to create a commitment
             </h2>
-            <p className="text-gray-600">
-              You need to be authenticated to create new commitments.
+            <p className="text-gray-600 mb-4">
+              You need to connect your wallet to create new commitments.
             </p>
+            <button
+              onClick={login}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Connect Wallet
+            </button>
           </div>
         </div>
       </div>
