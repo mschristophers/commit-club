@@ -1,5 +1,5 @@
-import { createPublicClient, http, parseEther, keccak256, stringToHex } from 'viem';
-import { flowEVMTestnet } from './chains';
+import { createPublicClient, http, parseEther, keccak256, stringToHex, defineChain } from 'viem';
+import { FLOW_EVM_TESTNET, ENV } from '../lib/chain';
 
 // Contract ABI for CommitClub
 export const COMMIT_CLUB_ABI = [
@@ -65,14 +65,39 @@ export const COMMIT_CLUB_ABI = [
   }
 ] as const;
 
+// Define Flow EVM Testnet chain
+const flowEVMTestnet = defineChain({
+  id: FLOW_EVM_TESTNET.id,
+  name: FLOW_EVM_TESTNET.name,
+  nativeCurrency: {
+    name: 'FLOW',
+    symbol: 'FLOW',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: [ENV.RPC_URL],
+    },
+    public: {
+      http: [ENV.RPC_URL],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Flowscan',
+      url: FLOW_EVM_TESTNET.explorer,
+    },
+  },
+});
+
 // Create public client for Flow EVM Testnet
 export const publicClient = createPublicClient({
   chain: flowEVMTestnet,
-  transport: http(process.env.NEXT_PUBLIC_FLOW_EVM_TESTNET_RPC || 'https://testnet.evm.nodes.onflow.org')
+  transport: http(ENV.RPC_URL)
 });
 
 // Contract address
-export const COMMIT_CLUB_ADDRESS = process.env.NEXT_PUBLIC_COMMIT_CLUB_ADDRESS as `0x${string}`;
+export const COMMIT_CLUB_ADDRESS = ENV.CONTRACT_ADDRESS;
 
 // Hash the secret code using keccak256
 export function hashCode(code: string): `0x${string}` {

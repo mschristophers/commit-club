@@ -1,9 +1,10 @@
 import { defineChain } from 'viem';
+import { FLOW_EVM_TESTNET, ENV } from '../lib/chain';
 
 // Flow EVM Testnet configuration
 export const flowEVMTestnet = defineChain({
-  id: 545,
-  name: 'Flow EVM Testnet',
+  id: FLOW_EVM_TESTNET.id,
+  name: FLOW_EVM_TESTNET.name,
   nativeCurrency: {
     name: 'FLOW',
     symbol: 'FLOW',
@@ -11,16 +12,16 @@ export const flowEVMTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_FLOW_EVM_TESTNET_RPC || 'https://testnet.evm.nodes.onflow.org'],
+      http: [ENV.RPC_URL],
     },
     public: {
-      http: [process.env.NEXT_PUBLIC_FLOW_EVM_TESTNET_RPC || 'https://testnet.evm.nodes.onflow.org'],
+      http: [ENV.RPC_URL],
     },
   },
   blockExplorers: {
     default: {
       name: 'Flowscan',
-      url: 'https://evm-testnet.flowscan.io',
+      url: FLOW_EVM_TESTNET.explorer,
     },
   },
 });

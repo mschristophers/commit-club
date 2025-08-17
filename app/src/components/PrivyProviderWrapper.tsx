@@ -1,6 +1,7 @@
 'use client';
 
 import { PrivyProvider } from '@privy-io/react-auth';
+import { FLOW_EVM_TESTNET, ENV } from '../lib/chain';
 
 interface PrivyProviderWrapperProps {
   children: React.ReactNode;
@@ -9,7 +10,7 @@ interface PrivyProviderWrapperProps {
 export default function PrivyProviderWrapper({ children }: PrivyProviderWrapperProps) {
   return (
     <PrivyProvider
-      appId={process.env.NEXT_PUBLIC_PRIVY_APP_ID!}
+      appId={ENV.PRIVY_APP_ID!}
       config={{
         // Create embedded wallets for users who don't have a wallet
         embeddedWallets: {
@@ -17,17 +18,17 @@ export default function PrivyProviderWrapper({ children }: PrivyProviderWrapperP
         },
         // Configure Flow EVM Testnet as default chain
         defaultChain: {
-          id: 545,
-          name: 'Flow EVM Testnet',
+          id: FLOW_EVM_TESTNET.id,
+          name: FLOW_EVM_TESTNET.name,
           rpcUrls: {
             default: {
-              http: [process.env.NEXT_PUBLIC_FLOW_EVM_TESTNET_RPC || 'https://testnet.evm.nodes.onflow.org']
+              http: [ENV.RPC_URL]
             }
           },
           blockExplorers: {
             default: {
               name: 'Flowscan',
-              url: 'https://evm-testnet.flowscan.io'
+              url: FLOW_EVM_TESTNET.explorer
             }
           },
           nativeCurrency: {
@@ -39,17 +40,17 @@ export default function PrivyProviderWrapper({ children }: PrivyProviderWrapperP
         // Supported chains - only Flow EVM Testnet for now
         supportedChains: [
           {
-            id: 545,
-            name: 'Flow EVM Testnet',
+            id: FLOW_EVM_TESTNET.id,
+            name: FLOW_EVM_TESTNET.name,
             rpcUrls: {
               default: {
-                http: [process.env.NEXT_PUBLIC_FLOW_EVM_TESTNET_RPC || 'https://testnet.evm.nodes.onflow.org']
+                http: [ENV.RPC_URL]
               }
             },
             blockExplorers: {
               default: {
                 name: 'Flowscan',
-                url: 'https://evm-testnet.flowscan.io'
+                url: FLOW_EVM_TESTNET.explorer
               }
             },
             nativeCurrency: {
