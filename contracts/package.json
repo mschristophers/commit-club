@@ -1,0 +1,24 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "hardhat test",
+    "test:solidity": "hardhat test solidity",
+    "test:nodejs": "hardhat test nodejs",
+    "build": "hardhat build",
+    "deploy": "hardhat ignition deploy ignition/modules/CommitClub.ts --network flow-testnet",
+    "deploy:local": "hardhat ignition deploy ignition/modules/CommitClub.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^3.0.0",
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.0",
+    "@types/node": "^22.17.2",
+    "dotenv": "^17.2.1",
+    "ethers": "^6.15.0",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.0.0",
+    "typescript": "~5.8.0",
+    "viem": "^2.33.3"
+  }
+}

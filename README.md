@@ -2,74 +2,91 @@
 
 A tiny "N-of-M check-in pot" for NYC meetups (e.g., Central Park runs) built with Next.js, Privy, and Hardhat 3.
 
-## Quick Start
-
-### Prerequisites
-- Node.js v22+
-- Yarn package manager
-- Flow EVM Testnet account (get testnet FLOW from [faucet](https://testnet-faucet.onflow.org/))
-
-### Setup
-
-1. **Clone and install dependencies**
-   ```bash
-   git clone <repo-url>
-   yarn install
-   cd app && yarn install
-   ```
-
-2. **Configure environment**
-   ```bash
-   # In contracts/ directory
-   cp .env.example .env
-   # Add your Flow EVM Testnet private key
-   ```
-
-3. **Deploy smart contract**
-   ```bash
-   # In contracts/ directory
-   yarn build
-   yarn deploy
-   ```
-
-4. **Start the app**
-   ```bash
-   # In app/ directory
-   yarn dev
-   ```
-
 ## Project Structure
 
 ```
 commit-club/
-├── contracts/          # Hardhat 3 project
-│   ├── CommitClub.sol  # Smart contract
-│   ├── hardhat.config.ts
-│   └── package.json
-├── app/               # Next.js frontend
-│   ├── src/app/       # App router pages
-│   └── src/components/
-└── README.md
+├── contracts/          # Hardhat 3 project with Solidity contracts
+├── app/               # Next.js 14+ frontend with Privy auth
+└── README.md          # This file
 ```
+
+## Quick Setup
+
+### Prerequisites
+
+- Node.js v22 or later
+- npm or pnpm
+
+### 1. Install Dependencies
+
+```bash
+# Install contracts dependencies
+cd contracts
+npm install
+
+# Install app dependencies  
+cd ../app
+npm install
+```
+
+### 2. Environment Setup
+
+Copy the example environment file and configure your settings:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your actual values:
+- `NEXT_PUBLIC_PRIVY_APP_ID` - Get from [Privy Console](https://console.privy.io/)
+- `PRIVATE_KEY` - Your wallet private key for contract deployment (without 0x prefix)
+- `FLOW_EVM_TESTNET_RPC` - Flow EVM Testnet RPC URL (already set)
+- `NEXT_PUBLIC_COMMIT_CLUB_ADDRESS` - Will be set after contract deployment
+
+**Note**: Both the contracts and app projects read from this centralized `.env.local` file.
+
+### 3. Development
+
+```bash
+# Terminal 1: Run contracts tests
+cd contracts
+npm test
+
+# Terminal 2: Run Next.js app
+cd app
+npm run dev
+```
+
+Visit `http://localhost:3000` to see the app.
+
+## Scripts
+
+### Contracts
+- `npm test` - Run all tests
+- `npm run test:solidity` - Run Solidity tests only
+- `npm run test:nodejs` - Run TypeScript tests only
+- `npm run build` - Compile contracts
+- `npm run deploy` - Deploy to Flow EVM Testnet
+
+### App
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
-- **Authentication**: Privy React SDK (embedded wallet, email/phone login)
-- **Blockchain**: Hardhat 3, Solidity, Flow EVM Testnet
-- **State Management**: Zustand
-- **UI**: QR codes, confetti animations
-
-## Development
-
-- `cd contracts && yarn build` - Compile contracts
-- `cd contracts && yarn test` - Run contract tests
-- `cd contracts && yarn deploy` - Deploy to Flow EVM Testnet
-- `cd app && yarn dev` - Start Next.js dev server
+- **Frontend**: Next.js 14+ (App Router, TypeScript)
+- **Auth**: Privy React SDK (embedded wallet, email/phone login)
+- **Smart Contracts**: Hardhat 3 + Solidity
+- **Blockchain**: Flow EVM Testnet
+- **Styling**: Tailwind CSS
+- **State**: Zustand
+- **Web3**: Viem + Wagmi
 
 ## Documentation
 
 - [Hardhat 3 Getting Started](https://hardhat.org/docs/getting-started)
-- [Privy React SDK Setup](https://docs.privy.io/basics/react/setup)
-- [Flow EVM Documentation](https://developers.flow.com/evm/using)
-- [Flow EVM Testnet Faucet](https://testnet-faucet.onflow.org/)
+- [Privy React Setup](https://docs.privy.io/basics/react/setup)
+- [Flow EVM Using](https://developers.flow.com/evm/using)
+- [Flow EVM Faucet](https://developers.flow.com/evm/faucet)
