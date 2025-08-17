@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import TopBar from '../../components/TopBar';
 import { usePrivyWallet } from '../../hooks/usePrivyWallet';
 import { useCommitClub } from '../../hooks/useCommitClub';
-import { useUIStore } from '../../store/uiStore';
+import { useUIStore, useChainStore } from '../../store/uiStore';
 
 export default function NewCommitment() {
   const { connected, ready, login } = usePrivyWallet();
   const { createCommit } = useCommitClub();
   const { addToast } = useUIStore();
+  const { selectedChain } = useChainStore();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -133,7 +134,7 @@ export default function NewCommitment() {
             
             <div>
               <label htmlFor="stakeAmount" className="block text-sm font-medium text-gray-700 mb-2">
-                Stake Amount (FLOW)
+                Stake Amount ({selectedChain.symbol})
               </label>
               <input
                 type="number"

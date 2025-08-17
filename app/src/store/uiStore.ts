@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { FLOW_EVM_TESTNET } from '../lib/chain';
 
 export type ToastType = 'success' | 'error' | 'pending' | 'info';
 
@@ -14,6 +15,16 @@ interface UIState {
   addToast: (message: string, type: ToastType) => void;
   removeToast: (id: string) => void;
   clearToasts: () => void;
+}
+
+// Chain state
+interface ChainState {
+  selectedChain: {
+    id: number;
+    name: string;
+    symbol: string;
+  };
+  setSelectedChain: (chain: { id: number; name: string; symbol: string }) => void;
 }
 
 /**
@@ -50,4 +61,16 @@ export const useUIStore = create<UIState>((set, get) => ({
   clearToasts: () => {
     set({ toasts: [] });
   },
+}));
+
+/**
+ * Chain state store
+ */
+export const useChainStore = create<ChainState>((set) => ({
+  selectedChain: {
+    id: FLOW_EVM_TESTNET.id,
+    name: FLOW_EVM_TESTNET.name,
+    symbol: 'FLOW'
+  },
+  setSelectedChain: (chain) => set({ selectedChain: chain }),
 }));

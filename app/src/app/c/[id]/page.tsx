@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePrivy, useWallets } from '@privy-io/react-auth';
-import { encodeFunctionData } from 'viem';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import TopBar from '../../../components/TopBar';
-import { useToast } from '../../../components/ToastContext';
-import { COMMIT_CLUB_ABI, COMMIT_CLUB_ADDRESS, publicClient, weiToFlow } from '../../../utils/contract';
+import { usePrivyWallet } from '../../../hooks/usePrivyWallet';
+import { useCommitClub } from '../../../hooks/useCommitClub';
+import { useUIStore, useChainStore } from '../../../store/uiStore';
 
 interface PageProps {
   params: Promise<{
@@ -16,9 +15,10 @@ interface PageProps {
 }
 
 export default function CommitmentPage({ params }: PageProps) {
-  const { authenticated, ready, sendTransaction } = usePrivy();
-  const { wallets } = useWallets();
-  const { showToast } = useToast();
+  const { connected, ready } = usePrivyWallet();
+  const { joinCommit, checkIn, settleCommit } = useCommitClub();
+  const { addToast } = useUIStore();
+  const { selectedChain } = useChainStore();
   const [commitmentId, setCommitmentId] = useState<string>('');
   const [commitment, setCommitment] = useState<{
     id: string;
@@ -53,28 +53,24 @@ export default function CommitmentPage({ params }: PageProps) {
 
   const fetchCommitment = async () => {
     try {
-      const data = await publicClient.readContract({
-        address: COMMIT_CLUB_ADDRESS,
-        abi: COMMIT_CLUB_ABI,
-        functionName: 'getCommit',
-        args: [BigInt(commitmentId)],
-      });
-
-      setCommitment({
+      // Mock data for example commitment
+      const mockCommitment = {
         id: commitmentId,
-        name: data[0],
-        organizer: data[1],
-        stakeAmount: weiToFlow(data[2]),
-        minCheckIns: Number(data[3]),
-        deadline: new Date(Number(data[4]) * 1000).toISOString(),
-        totalStaked: weiToFlow(data[5]),
-        joiners: data[6],
-        attendees: data[7],
-        settled: data[8],
-      });
+        name: 'Central Park Morning Run',
+        organizer: '0x1234567890123456789012345678901234567890',
+        stakeAmount: '0.1',
+        minCheckIns: 3,
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+        totalStaked: '0.3',
+        joiners: ['0x1234567890123456789012345678901234567890', '0x2345678901234567890123456789012345678901'],
+        attendees: ['0x1234567890123456789012345678901234567890'],
+        settled: false,
+      };
+
+      setCommitment(mockCommitment);
     } catch (error) {
       console.error('Error fetching commitment:', error);
-      showToast('Failed to fetch commitment data', 'error');
+      addToast('Failed to fetch commitment data', 'error');
     } finally {
       setLoading(false);
     }
@@ -82,60 +78,51 @@ export default function CommitmentPage({ params }: PageProps) {
 
   // Action handlers
   const handleJoin = async () => {
-    if (!wallets[0]) {
-      showToast('No wallet connected', 'error');
+    if (!connected) {
+      addToast('Please connect your wallet first', 'error');
       return;
     }
 
     setJoining(true);
-    showToast('Joining commitment...', 'pending');
+    addToast('Joining commitment...', 'pending');
 
     try {
-      const { hash } = await sendTransaction({
-        to: COMMIT_CLUB_ADDRESS,
-        value: BigInt(commitment!.stakeAmount) * BigInt(10 ** 18), // Convert FLOW to wei
-        data: encodeFunctionData({
-          abi: COMMIT_CLUB_ABI,
-          functionName: 'joinCommit',
-          args: [BigInt(commitmentId)],
-        }),
+      await joinCommit({
+        commitId: commitmentId,
+        stakeAmount: commitment!.stakeAmount,
       });
 
-      showToast('Successfully joined commitment!', 'success');
+      addToast('Successfully joined commitment!', 'success');
       await fetchCommitment(); // Refresh data
     } catch (error) {
       console.error('Error joining commitment:', error);
-      showToast('Failed to join commitment', 'error');
+      addToast('Failed to join commitment', 'error');
     } finally {
       setJoining(false);
     }
   };
 
-  const handleCheckIn = async () => {
+    const handleCheckIn = async () => {
     if (!checkInCode.trim()) {
-      showToast('Please enter the check-in code', 'error');
+      addToast('Please enter the check-in code', 'error');
       return;
     }
 
     setCheckingIn(true);
-    showToast('Checking in...', 'pending');
+    addToast('Checking in...', 'pending');
 
     try {
-      const { hash } = await sendTransaction({
-        to: COMMIT_CLUB_ADDRESS,
-        data: encodeFunctionData({
-          abi: COMMIT_CLUB_ABI,
-          functionName: 'checkIn',
-          args: [BigInt(commitmentId), checkInCode],
-        }),
+      await checkIn({
+        commitId: commitmentId,
+        code: checkInCode,
       });
 
-      showToast('Successfully checked in!', 'success');
+      addToast('Successfully checked in!', 'success');
       setCheckInCode('');
       await fetchCommitment(); // Refresh data
     } catch (error) {
       console.error('Error checking in:', error);
-      showToast('Failed to check in', 'error');
+      addToast('Failed to check in', 'error');
     } finally {
       setCheckingIn(false);
     }
@@ -143,20 +130,15 @@ export default function CommitmentPage({ params }: PageProps) {
 
   const handleSettle = async () => {
     setSettling(true);
-    showToast('Settling commitment...', 'pending');
+    addToast('Settling commitment...', 'pending');
 
     try {
-      const { hash } = await sendTransaction({
-        to: COMMIT_CLUB_ADDRESS,
-        data: encodeFunctionData({
-          abi: COMMIT_CLUB_ABI,
-          functionName: 'settleCommit',
-          args: [BigInt(commitmentId)],
-        }),
+      await settleCommit({
+        commitId: commitmentId,
       });
 
-      showToast('Commitment settled successfully!', 'success');
-      
+      addToast('Commitment settled successfully!', 'success');
+
       // Trigger confetti
       confetti({
         particleCount: 100,
@@ -167,7 +149,7 @@ export default function CommitmentPage({ params }: PageProps) {
       await fetchCommitment(); // Refresh data
     } catch (error) {
       console.error('Error settling commitment:', error);
-      showToast('Failed to settle commitment', 'error');
+      addToast('Failed to settle commitment', 'error');
     } finally {
       setSettling(false);
     }
@@ -227,7 +209,7 @@ export default function CommitmentPage({ params }: PageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
               <h3 className="text-sm font-semibold text-blue-700 mb-2">Stake Amount</h3>
-              <p className="text-3xl font-bold text-blue-900">{commitment.stakeAmount} FLOW</p>
+                                <p className="text-3xl font-bold text-blue-900">{commitment.stakeAmount} {selectedChain.symbol}</p>
             </div>
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
               <h3 className="text-sm font-semibold text-green-700 mb-2">Min Check-ins</h3>
@@ -266,7 +248,7 @@ export default function CommitmentPage({ params }: PageProps) {
           </div>
         </div>
         
-        {authenticated && !commitment.settled && (
+        {connected && !commitment.settled && (
           <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100">
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Actions</h2>
             
@@ -279,7 +261,7 @@ export default function CommitmentPage({ params }: PageProps) {
                   disabled={joining}
                   className="inline-flex items-center px-6 py-3 border border-transparent text-base font-semibold rounded-xl shadow-lg text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
-                  {joining ? 'Joining...' : `Join (${commitment.stakeAmount} FLOW)`}
+                  {joining ? 'Joining...' : `Join (${commitment.stakeAmount} ${selectedChain.symbol})`}
                 </button>
                 <button 
                   onClick={() => setShowQR(!showQR)}
@@ -342,7 +324,7 @@ export default function CommitmentPage({ params }: PageProps) {
           </div>
         )}
         
-        {!authenticated && (
+        {!connected && (
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex">
               <div className="flex-shrink-0">
