@@ -7,8 +7,8 @@
     "test:solidity": "hardhat test solidity",
     "test:nodejs": "hardhat test nodejs",
     "build": "hardhat build",
-    "deploy": "hardhat ignition deploy ignition/modules/CommitClub.ts --network flow-testnet",
-    "deploy:local": "hardhat ignition deploy ignition/modules/CommitClub.ts"
+    "deploy": "hardhat run scripts/deploy.ts --network flowTestnet",
+    "deploy:local": "hardhat run scripts/deploy.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.0",

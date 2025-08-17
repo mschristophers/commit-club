@@ -60,6 +60,17 @@ npm run dev
 
 Visit `http://localhost:3000` to see the app.
 
+### 4. Deploy to Flow EVM Testnet
+
+```bash
+# 1. Get FLOW from faucet: https://thirdweb.com/testnet
+# 2. Set PRIVATE_KEY in contracts/.env
+# 3. Deploy:
+cd contracts
+npx hardhat compile
+npx hardhat run scripts/deploy.ts --network flowTestnet
+```
+
 ## Scripts
 
 ### Contracts
