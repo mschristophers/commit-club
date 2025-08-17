@@ -32,7 +32,12 @@ export function usePrivyWallet() {
       throw new Error('Wallet not connected');
     }
 
-    const txParams: any = { 
+    const txParams: {
+      to: `0x${string}`;
+      gas: bigint;
+      data?: `0x${string}`;
+      value?: bigint;
+    } = { 
       to,
       // Set a reasonable gas limit to prevent "intrinsic gas too low" errors
       gas: BigInt(500000)
@@ -60,9 +65,9 @@ export function usePrivyWallet() {
    */
   const sendContractTx = async ({ to, abi, functionName, args, value }: {
     to: `0x${string}`;
-    abi: any;
+    abi: readonly unknown[];
     functionName: string;
-    args: any[];
+    args: readonly unknown[];
     value?: bigint;
   }) => {
     const data = encodeFunctionData({

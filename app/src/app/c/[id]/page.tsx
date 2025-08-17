@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import confetti from 'canvas-confetti';
 import TopBar from '../../../components/TopBar';
@@ -44,14 +44,7 @@ export default function CommitmentPage({ params }: PageProps) {
     params.then(({ id }) => setCommitmentId(id));
   }, [params]);
 
-  // Fetch commitment data
-  useEffect(() => {
-    if (commitmentId) {
-      fetchCommitment();
-    }
-  }, [commitmentId]);
-
-  const fetchCommitment = async () => {
+  const fetchCommitment = useCallback(async () => {
     try {
       const demoCommitment = getCommitment(commitmentId);
       if (demoCommitment) {
@@ -89,7 +82,14 @@ export default function CommitmentPage({ params }: PageProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [commitmentId, getCommitment, addToast]);
+
+  // Fetch commitment data
+  useEffect(() => {
+    if (commitmentId) {
+      fetchCommitment();
+    }
+  }, [commitmentId, fetchCommitment]);
 
   // Action handlers
   const handleJoin = async () => {
@@ -309,7 +309,7 @@ export default function CommitmentPage({ params }: PageProps) {
                     </div>
                   </div>
                   <p className="text-xs text-blue-600 mt-3 text-center">
-                    Scan this QR code to join "{commitment.name}"
+                    Scan this QR code to join &quot;{commitment.name}&quot;
                   </p>
                 </div>
               )}

@@ -13,7 +13,7 @@ export default function Home() {
               Welcome to Commit Club 🗽
             </h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Turn your goals into reality with social stakes. Create challenges, put money on the line, and reward those who show up while penalizing those who don't!
+              Turn your goals into reality with social stakes. Create challenges, put money on the line, and reward those who show up while penalizing those who don&apos;t!
             </p>
           </div>
           
@@ -56,7 +56,7 @@ export default function Home() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">Reward Winners, Penalize No-Shows</h3>
-                      <p className="text-gray-600 text-sm leading-relaxed">Those who show up split the pot! Those who don't show up lose their stake</p>
+                      <p className="text-gray-600 text-sm leading-relaxed">Those who show up split the pot! Those who don&apos;t show up lose their stake</p>
                     </div>
                   </div>
                 </div>
